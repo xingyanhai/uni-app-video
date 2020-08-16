@@ -1,7 +1,7 @@
 {
-    "name" : "login-template",
+    "name" : "电影搜索",
     "appid" : "",
-    "description" : "登录模板",
+    "description" : "电影搜索",
     "versionName" : "1.0.0",
     "versionCode" : "100",
     "transformPx" : false,
@@ -50,7 +50,8 @@
     "quickapp" : {},
     /* 小程序特有相关 */
     "mp-weixin" : {
-        "appid" : "",
+        "appid" : "wxeab1f7a4d6bc5a66",
+        "cloudfunctionRoot": "./functions/",
         "setting" : {
             "urlCheck" : false
         },

@@ -1,25 +1,51 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-
+import * as api from '../api/api'
 Vue.use(Vuex)
 
 const store = new Vuex.Store({
 	state: {
+		primaryColor: '#fb7349',
 		/**
 		 * 是否需要强制登录
 		 */
-		forcedLogin: false,
+		forcedLogin: true,
 		hasLogin: false,
-		userName: ""
+		userInfo: {},
+		config: {},
+		tagList: [],
+		shareImgUrl: '',
+		userPower: 0, // -1 超管 1其他
 	},
 	mutations: {
-		login(state, userName) {
-			state.userName = userName || '新用户';
-			state.hasLogin = true;
+		async getUserInfo(state) {
+			let userInfoData = await wx.cloud.callFunction({
+				name: 'getDbListData',
+				data: {
+					dbName: 'userList',
+					pageNo: 1,
+					pageSize: 1,
+					limitType: 1
+				}
+			})
+			state.userInfo = userInfoData.result.data[0] || {};
 		},
-		logout(state) {
-			state.userName = "";
-			state.hasLogin = false;
+		async getConfig(state) {
+			let resData = await wx.cloud.callFunction({
+				name: 'getDbListData',
+				data: {
+					dbName: 'config',
+					pageNo: 1,
+					pageSize: 1,
+					limitType: 3
+				}
+			})
+			state.config = resData.result.data[0] || {};
+		},
+		setStateData (state, obj = {}) {
+			Object.keys(obj).forEach(key => {
+				state[key] = obj[key]
+			})
 		}
 	}
 })

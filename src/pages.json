@@ -1,59 +1,51 @@
 {
-	"pages": [ //pages数组中第一项表示应用启动页,
+	"pages": [
 		{
-			"path": "pages/main/main",
+			"path": "pages/video-search/video-search",
 			"style": {
-				"navigationBarTitleText": "登录模板"
+				"navigationBarTitleText": "电影搜索"
 			}
-		}, {
-			"path": "pages/login/login",
+		},
+		{
+			"path": "pages/center/center",
 			"style": {
-				"navigationBarTitleText": "登录"
+				"navigationBarTitleText": "个人中心",
+				"enablePullDownRefresh": true,
+				"navigationStyle": "custom"
 			}
-		}, {
-			"path": "pages/reg/reg",
-			"style": {
-				"navigationBarTitleText": "注册"
-			}
-		}, {
-			"path": "pages/pwd/pwd",
-			"style": {
-				"navigationBarTitleText": "找回密码"
-			}
-		}, {
-			"path": "pages/user/user",
-			"style": {
-				"navigationBarTitleText": "我的"
-			}
-		}, {
-			"path": "pages/invite/invite",
-			"style": {
-				"navigationBarTitleText": "邀请注册页面"
-			}
-		}, {
-			"path": "pages/invite-reg/invite-reg",
+		},
+		{
+			"path": "pages/about/about",
 			"style": {}
 		}
 	],
-	"tabBar": {
-		"color": "#7a7e83",
-		"selectedColor": "#0faeff",
-		"backgroundColor": "#ffffff",
-		"list": [{
-			"pagePath": "pages/main/main",
-			"text": "首页",
-			"iconPath": "static/img/home.png",
-			"selectedIconPath": "static/img/homeHL.png"
-		}, {
-			"pagePath": "pages/user/user",
-			"text": "我的",
-			"iconPath": "static/img/user.png",
-			"selectedIconPath": "static/img/userHL.png"
-		}]
-	},
 	"globalStyle": {
 		"navigationBarTextStyle": "white",
-		"navigationBarBackgroundColor": "#0faeff",
-		"backgroundColor": "#fbf9fe"
+		"navigationBarTitleText": "电影搜索",
+		"navigationBarBackgroundColor": "#111111",
+		"backgroundColor": "#111111"
+	},
+	"tabBar": {
+		"color": "#aaa",
+		"selectedColor": "#fff",
+		"borderStyle": "black",
+		"backgroundColor": "#1b1b1b",
+		"list": [
+			{
+				"pagePath": "pages/video-search/video-search",
+				"iconPath": "static/img/search-0.png",
+				"selectedIconPath": "static/img/search-1.png",
+				"text": "搜索"
+			},
+			{
+				"pagePath": "pages/center/center",
+				"iconPath": "static/img/center-0.png",
+				"selectedIconPath": "static/img/center-1.png",
+				"text": "我的"
+			}
+		]
+	},
+	"window": {
+		"backgroundColor": "#111111"
 	}
 }
