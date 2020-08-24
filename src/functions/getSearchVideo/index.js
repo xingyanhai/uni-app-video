@@ -88,9 +88,9 @@ async function getVideo100 (search) {
 
         return {
           webUrl,
-          title,
+          videoName: title,
           time,
-          imgSrc,
+          coverImg: imgSrc,
           resource
         }
       } catch (e) {
@@ -107,7 +107,7 @@ async function getVideo100 (search) {
 
 // 天天在线电影大全
 async function getVideo432115(search) {
-  const url = 'https://wq.432115.com/app/index.php?i=12&t=0&v=2.0.8&from=wxapp&c=entry&a=wxapp&do=Search&m=sg_movie&sign=5fd729908692800a8626918f80251e1d&key=x'
+  const url = 'https://wq.432115.com/app/index.php?i=12&t=0&v=2.0.8&from=wxapp&c=entry&a=wxapp&do=Search&m=sg_movie'
   const res = await fetch({
     url,
     params: {
@@ -193,7 +193,7 @@ async function getVideoIyx3(search) {
 // 知也电影
 async function getVideoZy (search) {
   const url = 'https://www.zydy365.com/mini/cms/public/index.php?service=App.Mini.searchVod'
-  const res = await fetch({
+  let res = await fetch({
     url,
     params: {
       key: search
@@ -202,8 +202,33 @@ async function getVideoZy (search) {
     timeout: 60000,
   });
   let returnList = []
+  console.log('res-----', res)
+  res =JSON.stringify(res)
+  console.log('res2----', res)
+  console.log('res3----', eval(res))
   if(res && res.Data && res.Data.length) {
-    let dataList = res.Data
+    let searchList = res.Data
+    let fetchList = []
+    searchList.forEach(e => {
+      const url = 'https://www.zydy365.com/mini/cms/public/index.php?service=App.Mini.getOnlineMvByIdZHIYE2'
+      let f = fetch({
+        url,
+        params: {
+          vodid: e.vod_id
+        },
+        method: 'get',
+        timeout: 10,
+      });
+      fetchList.push(f)
+    })
+    console.log('fetchList',fetchList)
+    let dataList = []
+    (await Promise.all(fetchList)).forEach(e => {
+      console.log('ee--',e)
+      if(e.Code === 200) {
+        dataList.push(e.Data)
+      }
+    })
     dataList.forEach(data => {
       if(data.videos && data.videos.length) {
         // 播放列表
@@ -246,32 +271,44 @@ async function getVideoZy (search) {
 
 // 云函数入口函数
 exports.main = async (event, context) => {
+  let {search, sourceNo = 1} = event;
   try {
-    let {search, sourceType = 1} = event;
     const wxContext = cloud.getWXContext(search)
-    let returnData;
-    if (sourceType === 1) { // 来源
-      // 一杯电影
-      returnData = await getVideo100(search)
-    } else if(sourceType === 2) {
-      // 天天在线电影大全
-      returnData = await  getVideo432115(search)
-    } else if (sourceType === 3) {
+    let returnList = [];
+    let nextSourceNo;
+    if (sourceNo === 1) { // 来源
       // 知也电影
-      returnData = await  getVideoZy(search)
+      returnList = await getVideoZy(search)
+      nextSourceNo = 2
+    } else if(sourceNo === 2) {
+      // 天天在线电影大全
+      returnList = await getVideo432115(search)
+      nextSourceNo = 3
+    } else if (sourceNo === 3) {
+      // 一杯电影
+      returnList = await getVideo100(search)
+      nextSourceNo = 4
+    } else if (sourceNo === 4) {
+      // 在线会员热门电影
+      returnList = await getVideoIyx3(search)
+      nextSourceNo = -1
+    } else {
+      nextSourceNo = 1
     }
 
 
     return {
-      data: returnData,
-      status: 0,
-      message: '成功'
+      list: returnList,
+      nextSourceNo
     }
   }catch (e) {
+    let nextSourceNo = sourceNo ++;
+    if (nextSourceNo > 4) {
+      nextSourceNo = -1
+    }
     return {
-      data: e,
-      status: 1,
-      message: '失败'
+      list: [],
+      nextSourceNo
     }
   }
 }

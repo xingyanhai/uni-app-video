@@ -6,10 +6,10 @@
 		<view class="list" v-if="list && list.length">
 			<view class="item" v-for="item in list" :key="item.webUrl">
 				<view class="content">
-					<image mode="widthFix" class="image" :src="item.imgSrc"></image>
+					<image mode="widthFix" class="image" :src="item.coverImg"></image>
 					<view class="des">
-						<view class="title">{{item.title}}</view>
-						<view class="time">{{item.time}}</view>
+						<view class="title">{{item.videoName}}</view>
+						<view v-if="item.time" class="time">{{item.time}}</view>
 					</view>
 				</view>
 				<view class="res-list">
@@ -25,6 +25,12 @@
 			输入电影名称进行搜索 <br>
 			电影搜索可能耗时较长，请耐心等待。
 		</view>
+		<view class="re-search" v-if="sourceNo > 1 && sourceNo !== -1">
+			<text>没有搜到内容或搜到的都不是您想要的？可以切换视频来源再来一次</text>
+			<button type="primary" @click="searchClick(true)">
+				切换来源再搜一次
+			</button>
+		</view>
 	</view>
 </template>
 
@@ -39,6 +45,8 @@
 		data() {
 			return {
 				search: '',
+				// 搜索源编号 1,2,3... -1:没有了
+				sourceNo: 1,
 				list: []
 			};
 		},
@@ -46,7 +54,11 @@
         computed: mapState(['userInfo']),
 		methods: {
 			...mapMutations(['getUserInfo','setStateData']),
-			async searchClick () {
+			async searchClick (isAgain) {
+				if (isAgain) { // 再次搜索
+				} else {
+					this.sourceNo = 1
+				}
 				if (!this.search) {
 					uni.showToast(
 							{
@@ -57,14 +69,15 @@
 					return
 				}
 				uni.showLoading({
-					title: '全网搜索中，\n可能需要几分钟时间，\n请耐心等待...'
+					title: '搜索中...'
 				})
 				let res
 				try {
 					res = await wx.cloud.callFunction({
 						name: 'getSearchVideo',
 						data: {
-							search: this.search || '肖申克'
+							search: this.search || '肖申克',
+							sourceNo: this.sourceNo
 						}
 					})
 					uni.hideLoading()
@@ -77,13 +90,14 @@
 							}
 					);
 				}
-				if(res.errMsg === 'cloud.callFunction:ok' && res.result.status === 0) {
-					console.log('res',res)
-					this.list = res.result.data
-				} else {
+				if(res.errMsg === 'cloud.callFunction:ok') {
+					this.list = res.result.list
+					this.sourceNo = res.result.nextSourceNo
+				} else { // 可能是超时
+					this.sourceNo ++
 					uni.showToast(
 							{
-								title: res.result.msg,
+								title: `请切换来源重试${res.result.msg}`,
 								icon: 'none',
 							}
 					);
@@ -161,4 +175,7 @@
 	color #999
 	width 100%
 	display block
+.re-search
+	display block
+	text-align center
 </style>
