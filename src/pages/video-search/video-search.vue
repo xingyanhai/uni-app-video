@@ -3,15 +3,6 @@
         <view class="search-box">
             <SearchBtn placeholder="请输入电影名称搜索" v-model="search" @searchClick="searchClick"></SearchBtn>
         </view>
-        <view class="re-search" v-if="sourceNo > 1 && sourceNo !== -1">
-            <view class="tip-top-box">
-                没有搜到或搜到的都不是您想要的？<br>
-                可以切换到其它来源再搜一次
-            </view>
-            <button type="primary" @click="searchClick(true)">
-                切换至 来源{{sourceNo}} 再次搜索
-            </button>
-        </view>
         <view class="list" v-if="list && list.length">
             <view class="item" v-for="(value, index) in list" :key="index" @tap="toDetail(value)">
                 <view class="content">
@@ -40,6 +31,16 @@
             暂无数据 <br>
             输入电影名称进行搜索 <br>
             电影搜索可能耗时较长，请耐心等待。
+        </view>
+
+        <view class="re-search" v-if="sourceNo > 1 && sourceNo !== -1">
+            <view class="tip-top-box">
+                没有搜到或搜到的都不是您想要的？<br>
+                可以切换到其它来源再搜一次
+            </view>
+            <button type="primary" @click="searchClick(true)">
+                切换至 来源{{sourceNo}} 再次搜索
+            </button>
         </view>
     </view>
 </template>
