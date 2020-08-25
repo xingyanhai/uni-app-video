@@ -230,11 +230,16 @@ async function getVideoZy (search) {
       if(data.videos && data.videos.length) {
         // 播放列表11
         let urlList = []
-        let list = data.videos
-        urlList = list.map(item => {
-          return {
-            name: item.play_name,
-            value: item.play_url
+        data.videos.forEach(itemList => {
+          if(itemList && itemList.length) {
+            itemList.forEach(item => {
+              urlList.push(
+                {
+                  name: item.play_name,
+                  value: item.play_url
+                }
+              )
+            })
           }
         })
         // 下载列表
