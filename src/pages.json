@@ -7,6 +7,12 @@
 			}
 		},
 		{
+			"path": "pages/video-search/detail",
+			"style": {
+				"navigationBarTitleText": "电影详情"
+			}
+		},
+		{
 			"path": "pages/center/center",
 			"style": {
 				"navigationBarTitleText": "个人中心",

@@ -3,20 +3,29 @@
 		<view class="search-box">
 			<SearchBtn placeholder="请输入电影名称搜索" v-model="search" @searchClick="searchClick"></SearchBtn>
 		</view>
+		<view class="re-search" v-if="sourceNo > 1 && sourceNo !== -1">
+			<text>没有搜到内容或搜到的都不是您想要的？可以切换搜索来源再来一次</text>
+			<button type="primary" @click="searchClick(true)">
+				切换到来源{{sourceNo}}再搜一次
+			</button>
+		</view>
 		<view class="list" v-if="list && list.length">
-			<view class="item" v-for="item in list" :key="item.webUrl">
+			<view class="item" v-for="(value, index) in list" :key="index" @tap="toDetail(value)">
 				<view class="content">
-					<image mode="widthFix" class="image" :src="item.coverImg"></image>
+					<image mode="widthFix" class="image" :src="value.coverImg"></image>
 					<view class="des">
-						<view class="title">{{item.videoName}}</view>
-						<view v-if="item.time" class="time">{{item.time}}</view>
+						<view class="title">{{value.videoName}}</view>
+						<view v-if="value.actor" class="time">{{value.actor}}</view>
+						<view v-if="value.director" class="time">{{value.director}}</view>
+						<view v-if="value.videoType" class="time">{{value.videoType}}</view>
+						<view v-if="value.time" class="time">{{value.time}}</view>
 					</view>
 				</view>
 				<view class="res-list">
-					<view class="res-list-item" v-for="resItem in item.resource" :key="resItem.src">
-						<view @click="copy(resItem)">{{resItem.src}}</view>
-						<view @click="copy(resItem)">{{resItem.text}}</view>
-					</view>
+<!--					<view class="res-list-item" v-for="resItem in value.resource" :key="resItem.src">-->
+<!--						<view @click="copy(resItem)">{{resItem.src}}</view>-->
+<!--						<view @click="copy(resItem)">{{resItem.text}}</view>-->
+<!--					</view>-->
 				</view>
 			</view>
 		</view>
@@ -24,12 +33,6 @@
 			暂无数据 <br>
 			输入电影名称进行搜索 <br>
 			电影搜索可能耗时较长，请耐心等待。
-		</view>
-		<view class="re-search" v-if="sourceNo > 1 && sourceNo !== -1">
-			<text>没有搜到内容或搜到的都不是您想要的？可以切换视频来源再来一次</text>
-			<button type="primary" @click="searchClick(true)">
-				切换来源再搜一次
-			</button>
 		</view>
 	</view>
 </template>
@@ -51,7 +54,7 @@
 			};
 		},
 		components: {SearchBtn},
-        computed: mapState(['userInfo']),
+        computed: mapState(['userInfo', 'config']),
 		methods: {
 			...mapMutations(['getUserInfo','setStateData']),
 			async searchClick (isAgain) {
@@ -116,6 +119,17 @@
 						})
 					}
 				})
+			},
+			toDetail (data) {
+				if (this.config && this.config.showVideo) {
+					try {
+						wx.setStorageSync('videoInfo', JSON.stringify(data))
+					} catch (e) {
+					}
+					uni.navigateTo({
+						url: `/pages/video-search/detail`
+					})
+				}
 			}
 		},
 		// 加了这个页面才可以被分享
