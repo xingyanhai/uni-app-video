@@ -130,7 +130,7 @@ async function getVideo432115(search) {
             name: item[0],
             value: item[1]
           }
-        })
+        }).filter(e => !!e.value)
         returnList.push(
             {
               videoName: data.vod_name,
@@ -165,14 +165,20 @@ async function getVideoIyx3(search) {
     dataList.forEach(data => {
       if(data.vod_play_url && data.vod_play_url.length) {
         let urlList = []
-        let list = `${data.vod_play_url || ''}`.split(data.vod_play_note)
+        let list
+        if(data.vod_play_note) {
+          list = `${data.vod_play_url || ''}`.split(data.vod_play_note)
+        } else {
+          list = [data.vod_play_url]
+        }
+
         urlList = list.map(e => {
           let item = e.split('$')
           return {
             name: item[0],
             value: item[1]
           }
-        })
+        }).filter(e => !!e.value)
         returnList.push(
             {
               videoName: data.vod_name,
@@ -242,6 +248,7 @@ async function getVideoZy (search) {
             })
           }
         })
+        urlList = urlList.filter(e => !!e.value)
         // 下载列表
         let downList = undefined
         if (data.downs && data.downs.length) {

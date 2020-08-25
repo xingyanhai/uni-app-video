@@ -14,7 +14,7 @@
 				   :src="currentUrl">
 			</video>
 		</view>
-		<view class="source-box">
+		<view class="source-box" v-if="urlList && urlList.length">
 			<view>播放线路</view>
 			<view>
 				<radio-group class="radio-box" @change="changeRadio">
@@ -24,21 +24,21 @@
 				</radio-group>
 			</view>
 		</view>
-		<view class="down-box">
+		<view class="down-box" v-if="downList.length || resource.length">
 			<view>下载来源</view>
 			<view class="content">
-				<view v-for="(value, index) in downList" class="item" @tap="copy1(value)" :key="`1-${index}`">
+				<view v-for="(value, index) in downList" class="item" :data-item="value" @click="copy1" :key="`1-${index}`">
 					{{value.name}} {{value.url}}
 				</view>
-				<view v-for="(value, index) in resource" class="item"  @tap="copy2(value)":key="`2-${index}`">
+				<view v-for="(value, index) in resource" class="item" :data-item="value" @click="copy2" :key="`2-${index}`">
 					{{value.text}} {{value.src}}
 				</view>
 			</view>
 		</view>
-		<view class="des-box">
+		<view class="des-box" v-if="videoInfo && videoInfo.decs">
 			<view>剧情简介</view>
 			<view class="content">
-				{{videoInfo && (videoInfo.decs || '')}}
+				{{videoInfo && videoInfo.decs}}
 			</view>
 		</view>
 	</view>
@@ -80,7 +80,8 @@
 			videoWaiting () {
 				console.log('视频缓冲中')
 			},
-			videoError () {
+			videoError (err) {
+				console.log(err)
 				this.videoContext.stop()
 				uni.showToast({
 					title: `抱歉，视频加载失败，尝试其它播放源！`,
@@ -109,6 +110,8 @@
 				}
 			},
 			copy1 (item) {
+				console.log(item)
+				item = item.target.dataset.item
 				let text = `${item.name}\n${item.url}`
 				wx.setClipboardData({
 					data: text,
@@ -122,6 +125,7 @@
 				})
 			},
 			copy2 (item) {
+				item = item.target.dataset.item
 				let text = `${item.src}\n${item.text}`
 				wx.setClipboardData({
 					data: text,
@@ -159,6 +163,7 @@
 .new-page
 	display block
 	width 100%
+	color #333
 .video-box
 	display block
 	.video
@@ -167,7 +172,7 @@
 .source-box
 	display block
 	border-radius 10px
-	background-color #fff
+	background-color $uni-list-item-color
 	padding 10px
 	margin 5px
 	.radio-box
@@ -180,7 +185,7 @@
 .des-box
 	display block
 	border-radius 10px
-	background-color #fff
+	background-color $uni-list-item-color
 	padding 10px
 	margin 5px
 	.content
@@ -188,7 +193,7 @@
 .down-box
 	display block
 	border-radius 10px
-	background-color #fff
+	background-color $uni-list-item-color
 	padding 10px
 	margin 5px
 	.content

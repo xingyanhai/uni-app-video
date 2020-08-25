@@ -4,7 +4,7 @@
             <SearchBtn placeholder="请输入电影名称搜索" v-model="search" @searchClick="searchClick"></SearchBtn>
         </view>
         <view class="re-search" v-if="sourceNo > 1 && sourceNo !== -1">
-            <text>没有搜到内容或搜到的都不是您想要的？可以切换到其它来源再搜一次</text>
+            <text>没有搜到或搜到的都不是您想要的？可以切换到其它来源再搜一次</text>
             <button type="primary" @click="searchClick(true)">
                 切换到来源{{sourceNo}}再次搜索
             </button>
@@ -15,8 +15,8 @@
                     <image mode="widthFix" class="image" :src="value.coverImg"></image>
                     <view class="des">
                         <view class="title">{{value.videoName}}</view>
-                        <view v-if="value.actor" class="time">{{value.actor}}</view>
                         <view v-if="value.director" class="time">{{value.director}}</view>
+                        <view v-if="value.actor" class="time">{{value.actor}}</view>
                         <view v-if="value.videoType" class="time">{{value.videoType}}</view>
                         <view v-if="value.time" class="time">{{value.time}}</view>
                         <view class="label-box">
@@ -55,7 +55,8 @@
         search: '',
         // 搜索源编号 1,2,3... -1:没有了
         sourceNo: 1,
-        list: []
+        list: [],
+        loading: false
       };
     },
     components: { SearchBtn },
@@ -64,10 +65,15 @@
       ...mapMutations(['getUserInfo', 'setStateData']),
 
       showPlay (data) {
+        if(!this.config.showVideo) {
+          return false
+        }
         return data.urlList && data.urlList.length >0
       },
       showDown (data) {
-        console.log(data)
+        if(!this.config.showVideo) {
+          return false
+        }
         return (data.downList && data.downList.length >0) || (data.resource && data.resource.length > 0)
       },
       async searchClick(isAgain) {
@@ -84,9 +90,13 @@
           );
           return
         }
+        if (this.loading) {
+          return
+        }
         uni.showLoading({
           title: '搜索中...'
         })
+        this.loading = true
         let res
         try {
           res = await wx.cloud.callFunction({
@@ -97,8 +107,10 @@
             }
           })
           uni.hideLoading()
+          this.loading = false
         } catch (e) {
           uni.hideLoading()
+          this.loading = false
           uni.showToast(
             {
               title: '搜索失败，请修改关键字重试',
@@ -107,7 +119,7 @@
           );
         }
         if (res && res.errMsg === 'cloud.callFunction:ok') {
-          this.list = res.result.list
+          this.list = res.result.list || []
           this.sourceNo = res.result.nextSourceNo
         } else { // 可能是超时
           this.sourceNo++
@@ -120,7 +132,6 @@
         }
       },
       copy(item) {
-        console.log(item)
         let text = `${item.src}\n${item.text}`
         wx.setClipboardData({
           data: text,
@@ -134,6 +145,7 @@
         })
       },
       toDetail(data) {
+        console.log(this.config)
         if (this.config && this.config.showVideo) {
           try {
             wx.setStorageSync('videoInfo', JSON.stringify(data))
@@ -154,6 +166,7 @@
 </script>
 
 <style lang="stylus" scoped>
+    @import "../../uni.styl"
     .wrap
         display block
         width 100%
@@ -172,7 +185,7 @@
             margin 10px 5px
             padding 10px
             border-radius 5px
-            background-color #fff
+            background-color $uni-list-item-color
             display flex
             flex-direction column
 
@@ -190,12 +203,10 @@
 
                     .title
                         font-size 16px
-                        color #333
 
                     .time
                         margin-top 10px
                         font-size 12px
-                        color #444
 
             .res-list
                 display block
