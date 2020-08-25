@@ -1,6 +1,6 @@
 <template>
 	<view class="new-page">
-		<view class="video-box" v-if="config && config.showVideo">
+		<view class="video-box">
 			<video @waiting="videoWaiting"
 				   id="myVideo"
 				   class="video"
@@ -25,18 +25,18 @@
 			</view>
 		</view>
 		<view class="down-box" v-if="downList.length || resource.length">
-			<view>下载来源</view>
+			<view class="item-title">下载来源</view>
 			<view class="content">
-				<view v-for="(value, index) in downList" class="item" :data-item="value" @click="copy1" :key="`1-${index}`">
+				<view v-for="(value, index) in downList" class="item" :data-item="value" @click="copy1" :key="index">
 					{{value.name}} {{value.url}}
 				</view>
-				<view v-for="(value, index) in resource" class="item" :data-item="value" @click="copy2" :key="`2-${index}`">
+				<view v-for="(value, index) in resource" class="item" :data-item="value" @click="copy2" :key="index">
 					{{value.text}} {{value.src}}
 				</view>
 			</view>
 		</view>
 		<view class="des-box" v-if="videoInfo && videoInfo.decs">
-			<view>剧情简介</view>
+			<view class="item-title">剧情简介</view>
 			<view class="content">
 				{{videoInfo && videoInfo.decs}}
 			</view>
@@ -148,10 +148,10 @@
 			}catch (e) {
 				this.videoInfo = {}
 			}
-			this.movieName = this.videoInfo.name
+			this.movieName = this.videoInfo.videoName || ''
 			this.getData()
 			uni.setNavigationBarTitle({
-				title: this.videoInfo.name || '电影详情'
+				title: this.videoInfo.videoName || '电影详情'
 			});
 			this.videoContext = wx.createVideoContext('myVideo')
 		},
@@ -202,4 +202,6 @@
 		.item
 			display block
 			word-break break-all
+.item-title
+	margin-bottom 5px
 </style>

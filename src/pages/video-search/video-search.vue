@@ -4,9 +4,12 @@
             <SearchBtn placeholder="请输入电影名称搜索" v-model="search" @searchClick="searchClick"></SearchBtn>
         </view>
         <view class="re-search" v-if="sourceNo > 1 && sourceNo !== -1">
-            <text>没有搜到或搜到的都不是您想要的？可以切换到其它来源再搜一次</text>
+            <view class="tip-top-box">
+                没有搜到或搜到的都不是您想要的？<br>
+                可以切换到其它来源再搜一次
+            </view>
             <button type="primary" @click="searchClick(true)">
-                切换到来源{{sourceNo}}再次搜索
+                切换至 来源{{sourceNo}} 再次搜索
             </button>
         </view>
         <view class="list" v-if="list && list.length">
@@ -240,5 +243,7 @@
             line-height 18px
             font-size 12px
             margin-right 3px
-
+.tip-top-box
+    display block
+    padding 5px 0
 </style>
