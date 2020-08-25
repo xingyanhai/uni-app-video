@@ -190,7 +190,7 @@ async function getVideoIyx3(search) {
   return returnList
 }
 
-// 知也电影
+// 知也电影1100..88
 async function getVideoZy (search) {
   const url = 'https://www.zydy365.com/mini/cms/public/index.php?service=App.Mini.searchVod'
   let res = await fetch({
@@ -202,10 +202,7 @@ async function getVideoZy (search) {
     timeout: 60000,
   });
   let returnList = []
-  console.log('res-----', res)
-  res =JSON.stringify(res)
-  console.log('res2----', res)
-  console.log('res3----', eval(res))
+  res = eval(`(${res})`)
   if(res && res.Data && res.Data.length) {
     let searchList = res.Data
     let fetchList = []
@@ -217,21 +214,21 @@ async function getVideoZy (search) {
           vodid: e.vod_id
         },
         method: 'get',
-        timeout: 10,
+        timeout: 60000,
       });
       fetchList.push(f)
     })
-    console.log('fetchList',fetchList)
-    let dataList = []
-    (await Promise.all(fetchList)).forEach(e => {
-      console.log('ee--',e)
+    let dataList = [];
+    let detailRes = await Promise.all(fetchList)
+    detailRes.forEach(e => {
+      e =  eval(`(${e})`)
       if(e.Code === 200) {
         dataList.push(e.Data)
       }
     })
     dataList.forEach(data => {
       if(data.videos && data.videos.length) {
-        // 播放列表
+        // 播放列表11
         let urlList = []
         let list = data.videos
         urlList = list.map(item => {
@@ -268,7 +265,6 @@ async function getVideoZy (search) {
   return returnList
 }
 
-
 // 云函数入口函数
 exports.main = async (event, context) => {
   let {search, sourceNo = 1} = event;
@@ -296,12 +292,12 @@ exports.main = async (event, context) => {
       nextSourceNo = 1
     }
 
-
     return {
       list: returnList,
       nextSourceNo
     }
   }catch (e) {
+    console.log(e)
     let nextSourceNo = sourceNo ++;
     if (nextSourceNo > 4) {
       nextSourceNo = -1

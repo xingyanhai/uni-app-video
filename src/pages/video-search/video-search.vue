@@ -90,7 +90,7 @@
 							}
 					);
 				}
-				if(res.errMsg === 'cloud.callFunction:ok') {
+				if(res && res.errMsg === 'cloud.callFunction:ok') {
 					this.list = res.result.list
 					this.sourceNo = res.result.nextSourceNo
 				} else { // 可能是超时
