@@ -1,5 +1,5 @@
 <template>
-	<view class="new-page">
+	<view class="new-page" v-if="config && config.showVideo">
 		<view class="video-box">
 			<video @waiting="videoWaiting"
 				   id="myVideo"
