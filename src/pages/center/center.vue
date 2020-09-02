@@ -173,6 +173,20 @@
 					}
 				})
 			},
+			showInterstitialAd () {
+				// 在页面中定义插屏广告
+				let interstitialAd = null
+				// 在页面onLoad回调事件中创建插屏广告实例
+				if (wx.createInterstitialAd) {
+					interstitialAd = wx.createInterstitialAd({
+						adUnitId: 'adunit-eaacac765aaf2334'
+					})
+					interstitialAd.onLoad(() => {})
+					interstitialAd.onError((err) => {})
+					interstitialAd.onClose(() => {})
+					interstitialAd.show()
+				}
+			}
 		},
       async onPullDownRefresh() {
         await this.$store.commit('getConfig')
@@ -184,6 +198,7 @@
 		onShareAppMessage: function (res) {
 		},
 		onLoad() {
+			this.showInterstitialAd()
 			this.getUserInfo()
 		}
 	}
