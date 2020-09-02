@@ -1,6 +1,6 @@
 <template>
 	<view class="new-page">
-		<view class="video-box">
+		<view class="video-box" v-if="config && config.showVideo">
 			<video @waiting="videoWaiting"
 				   id="myVideo"
 				   class="video"
@@ -15,7 +15,7 @@
 				   :src="currentUrl">
 			</video>
 		</view>
-		<view class="source-box" v-if="urlList && urlList.length">
+		<view class="source-box" v-if="urlList && urlList.length && config && config.showVideo">
 			<view>播放线路</view>
 			<view>
 				<radio-group class="radio-box" @change="changeRadio">
@@ -42,8 +42,8 @@
 				{{videoInfo && videoInfo.decs}}
 			</view>
 		</view>
-		<ad v-if="config && config.showAd" unit-id="adunit-2c56a0998bfafd4e" ad-type="video" ad-theme="white"></ad>
-		<ad v-if="config && config.showAd" unit-id="adunit-acecd656d2e01167" ad-type="grid" grid-opacity="0.8" grid-count="5" ad-theme="white"></ad>
+		<ad v-if="config && config.showAd" ad-theme="black" unit-id="adunit-2c56a0998bfafd4e" ad-type="video"></ad>
+		<ad v-if="config && config.showAd" ad-theme="black" unit-id="adunit-acecd656d2e01167" ad-type="grid" grid-opacity="0.8" grid-count="5"></ad>
 	</view>
 </template>
 
@@ -98,7 +98,7 @@
 			},
 			onPlay () {
 				clearTimeout(this.timer)
-				if (!this.isLookVideoAd) {
+				if (!this.isLookVideoAd && this.config && this.config.showAd) {
 					this.timer = setTimeout(() => {
 						this.videoContext.pause()
 						uni.showModal({

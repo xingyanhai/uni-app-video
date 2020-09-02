@@ -97,7 +97,7 @@
 	export default {
 		data() {
 			return {
-				avatarUrl: '/static/logo.png',
+				avatarUrl: '/static/img/logo.png',
 			}
 		},
 		computed: {

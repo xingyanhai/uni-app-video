@@ -1,6 +1,7 @@
 <template>
     <view class="wrap">
         <view class="main-top">
+            <view class="app-tips" v-if="config && config.tips">{{config.tips}}</view>
             <view class="search-box">
                 <SearchBtn placeholder="请输入电影名称搜索" v-model="search" @searchClick="searchClick"></SearchBtn>
             </view>
@@ -49,12 +50,12 @@
         <view class="main-bottom">
             <view class="button-add-count">
                 <view v-if="config && config.showCurrentCount">当前剩余搜索次数:{{currentFreeCount}}</view>
-                <view class="btn" @click="addCountClick"  v-if="config && config.showLookAd">
+                <view class="btn" @click="addCountClick" v-if="config && config.showLookAd">
                     点击观看视频广告，获取{{addFreeCount}}次搜索次数
                 </view>
             </view>
             <view class="bottom-ad-box" v-if="config && config.showAd">
-                <ad-custom unit-id="adunit-aae810d0225a4961"></ad-custom>
+                <ad-custom ad-theme="black" unit-id="adunit-aae810d0225a4961"></ad-custom>
             </view>
         </view>
     </view>
@@ -68,6 +69,7 @@
         mapMutations
     } from 'vuex'
     import * as common from '../../common/common'
+
     export default {
         data() {
             return {
@@ -92,16 +94,16 @@
             }
         },
         watch: {
-          config () {
+            config() {
                 this.getCurrentFreeCount()
-          },
-          currentFreeCount () {
-              this.setCurrentFreeCount()
-          }
+            },
+            currentFreeCount() {
+                this.setCurrentFreeCount()
+            }
         },
         methods: {
             ...mapMutations(['getUserInfo', 'setStateData']),
-            getCurrentFreeCount () {
+            getCurrentFreeCount() {
                 let count = 0
                 try {
                     count = wx.getStorageSync('currentFreeCount') || this.firstFreeCount
@@ -112,8 +114,9 @@
                 this.currentFreeCount = count
                 console.log('this.currentFreeCount=', count)
             },
-            setCurrentFreeCount () {
-                wx.setStorageSync('currentFreeCount', this.currentFreeCount)
+            setCurrentFreeCount() {
+                let count = this.currentFreeCount
+                wx.setStorageSync('currentFreeCount', count)
             },
             showPlay(data) {
                 if (!this.config.showVideo) {
@@ -127,12 +130,12 @@
                 }
                 return (data.downList && data.downList.length > 0) || (data.resource && data.resource.length > 0)
             },
-            addCountClick () {
+            addCountClick() {
                 common.showVideoAd(this.videoAd)
             },
             tryToShowAd() {
                 let isShowAd = false
-                if (this.currentFreeCount <= 0) {
+                if (this.currentFreeCount <= 0 && this.config && this.config.showAd) {
                     isShowAd = true
                     uni.showModal({
                         title: '提示',
@@ -204,7 +207,11 @@
                             this.searchMap[this.search]++
                         } else {
                             this.searchMap[this.search] = 1
-                            this.currentFreeCount --
+                            let count = this.currentFreeCount - 1
+                            if (count < 0) {
+                                count = 0
+                            }
+                            this.currentFreeCount = count
                         }
                     }
                 } else { // 可能是超时
@@ -246,8 +253,8 @@
         onHide() {
             this.setCurrentFreeCount()
         },
-        onShow () {
-            if(this.config && Object.keys(this.config).length) {
+        onShow() {
+            if (this.config && Object.keys(this.config).length) {
                 this.getCurrentFreeCount()
             }
         },
@@ -294,14 +301,17 @@
         display flex
         width 100%
         flex-direction column
+
         .main-top
             display block
             width 100%
             flex 1
             overflow hidden
+
         .main-bottom
             display block
             width 100%
+
     .search-box
         box-sizing border-box
         display block
@@ -377,6 +387,7 @@
     .tip-top-box
         display block
         padding 5px 0
+
     .button-add-count
         display flex
         flex-direction column
@@ -384,12 +395,20 @@
         align-items center
         font-size 12px
         line-height 20px
+
         .btn
             color #00b26a
             line-height 30px
+
     .bottom-ad-box
         margin-top 10px
         display flex
         justify-content center
         align-items center
+
+    .app-tips
+        color red
+        display block
+        text-align center
+        font-size 12px
 </style>
