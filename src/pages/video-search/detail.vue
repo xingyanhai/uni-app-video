@@ -1,11 +1,12 @@
 <template>
-	<view class="new-page" v-if="config && config.showVideo">
+	<view class="new-page">
 		<view class="video-box">
 			<video @waiting="videoWaiting"
 				   id="myVideo"
 				   class="video"
 				   :show-casting-button="true"
 				   @error="videoError"
+				   @play="onPlay"
 				   :title="movieName"
 				   :enable-play-gesture="true"
 				   picture-in-picture-mode="pop"
@@ -41,12 +42,15 @@
 				{{videoInfo && videoInfo.decs}}
 			</view>
 		</view>
+		<ad v-if="config && config.showAd" unit-id="adunit-2c56a0998bfafd4e" ad-type="video" ad-theme="white"></ad>
+		<ad v-if="config && config.showAd" unit-id="adunit-acecd656d2e01167" ad-type="grid" grid-opacity="0.8" grid-count="5" ad-theme="white"></ad>
 	</view>
 </template>
 
 <script>
 	import * as api from '../../api/api'
 	import * as util from '../../common/util'
+	import * as common from '../../common/common.js'
 	import {
 		mapState,
 		mapMutations
@@ -60,7 +64,11 @@
 				urlList: [], // 播放列表
 				resource: [], // 百度云链接列表
 				downList: [], // 下载列表
-				currentUrl: ''
+				currentUrl: '',
+				// 是否观看了激励广告
+				isLookVideoAd: false,
+				videoAd: null,
+				timer: null
 			}
 		},
 		computed: {
@@ -88,6 +96,24 @@
 					icon: 'none',
 				})
 			},
+			onPlay () {
+				clearTimeout(this.timer)
+				if (!this.isLookVideoAd) {
+					this.timer = setTimeout(() => {
+						this.videoContext.pause()
+						uni.showModal({
+							title: '提示',
+							content: `观看视频广告（约15秒），即可观看完整视频`,
+							success: (res) => {
+								if (res.confirm) {
+									common.showVideoAd(this.videoAd)
+								} else if (res.cancel) {
+								}
+							}
+						})
+					}, 3000)
+				}
+			},
 			async changeRadio (e) {
 				this.currentUrl = e.detail.value
 				await this.$nextTick()
@@ -104,7 +130,7 @@
 					this.resource = data.resource || []
 				} else {
 					uni.showToast({
-						title: `抱歉，暂无视频播放源!`,
+						title: `抱歉，暂无信息!,请点击左上角返回重新搜索`,
 						icon: 'none',
 					})
 				}
@@ -138,6 +164,29 @@
 					}
 				})
 			},
+			addVideoAd () {
+				// 在页面onLoad回调事件中创建激励视频广告实例
+				if (wx.createRewardedVideoAd) {
+					this.videoAd = wx.createRewardedVideoAd({
+						adUnitId: 'adunit-dc1741497f2da636'
+					})
+					this.videoAd.onLoad(() => {
+					})
+					this.videoAd.onError((err) => {
+						console.log('videoAd.onError', err)
+					})
+					this.videoAd.onClose((res) => {
+						// 用户点击了【关闭广告】按钮
+						if (res && res.isEnded) {
+							// 正常播放结束，可以下发游戏奖励
+							this.isLookVideoAd = true
+							this.videoContext.play()
+						} else {
+							// 播放中途退出，不下发游戏奖励
+						}
+					})
+				}
+			}
 		},
 		// 加了这个页面才可以被分享
 		onShareAppMessage () {
@@ -154,6 +203,8 @@
 				title: this.videoInfo.videoName || '电影详情'
 			});
 			this.videoContext = wx.createVideoContext('myVideo')
+			// 挂载视频广告
+			this.addVideoAd()
 		},
 	}
 </script>

@@ -113,6 +113,9 @@
 		methods: {
 			...mapMutations(['getUserInfo','setStateData']),
             getUserInfoClick (e) {
+			  if(this.userInfo && this.userInfo.isLogin) {
+				  return
+			  }
               e.detail.userInfo.isLogin = true
               wx.cloud.init()                              //调用前需先调用init
               wx.cloud.callFunction({
@@ -177,7 +180,7 @@
 				// 在页面中定义插屏广告
 				let interstitialAd = null
 				// 在页面onLoad回调事件中创建插屏广告实例
-				if (wx.createInterstitialAd) {
+				if (wx.createInterstitialAd && this.config && this.config.showAd) {
 					interstitialAd = wx.createInterstitialAd({
 						adUnitId: 'adunit-eaacac765aaf2334'
 					})
@@ -188,12 +191,12 @@
 				}
 			}
 		},
-      async onPullDownRefresh() {
-        await this.$store.commit('getConfig')
-		await this.$store.commit('getUserPower')
-		  console.log(this.userPower,'userPower')
-        uni.stopPullDownRefresh();
-      },
+      // async onPullDownRefresh() {
+      //   await this.$store.commit('getConfig')
+		// await this.$store.commit('getUserPower')
+		//   console.log(this.userPower,'userPower')
+      //   uni.stopPullDownRefresh();
+      // },
        // 加了这个页面才可以被分享
 		onShareAppMessage: function (res) {
 		},

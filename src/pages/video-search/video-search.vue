@@ -53,7 +53,7 @@
                     点击观看视频广告，获取{{addFreeCount}}次搜索次数
                 </view>
             </view>
-            <view class="bottom-ad-box">
+            <view class="bottom-ad-box" v-if="config && config.showAd">
                 <ad-custom unit-id="adunit-aae810d0225a4961"></ad-custom>
             </view>
         </view>
@@ -67,7 +67,7 @@
         mapState,
         mapMutations
     } from 'vuex'
-
+    import * as common from '../../common/common'
     export default {
         data() {
             return {
@@ -127,24 +127,8 @@
                 }
                 return (data.downList && data.downList.length > 0) || (data.resource && data.resource.length > 0)
             },
-            async showVideoAd() {
-                if (this.videoAd) {
-                    let res
-                    try {
-                        res = await this.videoAd.show()
-                    } catch (err) {
-                        console.log(err)
-                        try {
-                            await videoAd.load()
-                            await videoAd.show()
-                        } catch (e) {
-                            console.log('激励视频 广告显示失败1')
-                        }
-                    }
-                }
-            },
             addCountClick () {
-                this.showVideoAd()
+                common.showVideoAd(this.videoAd)
             },
             tryToShowAd() {
                 let isShowAd = false
@@ -155,7 +139,7 @@
                         content: `观看视频广告（约15秒），即可获取${this.addFreeCount}次搜索机会哦！(无搜索结果或重复搜索不计)`,
                         success: (res) => {
                             if (res.confirm) {
-                                this.showVideoAd()
+                                common.showVideoAd(this.videoAd)
                                 console.log('用户点击确定')
                             } else if (res.cancel) {
                                 console.log('用户点击取消')
@@ -247,16 +231,13 @@
                 })
             },
             toDetail(data) {
-                console.log(this.config)
-                if (this.config && this.config.showVideo) {
-                    try {
-                        wx.setStorageSync('videoInfo', JSON.stringify(data))
-                    } catch (e) {
-                    }
-                    uni.navigateTo({
-                        url: `/pages/video-search/detail`
-                    })
+                try {
+                    wx.setStorageSync('videoInfo', JSON.stringify(data))
+                } catch (e) {
                 }
+                uni.navigateTo({
+                    url: `/pages/video-search/detail`
+                })
             }
         },
         // 加了这个页面才可以被分享
