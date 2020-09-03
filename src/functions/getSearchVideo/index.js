@@ -277,6 +277,15 @@ async function getVideoZy (search) {
   return returnList
 }
 
+function filterVideo(list = []) {
+  let hideList = ['八佰']
+  return list.filter(e => {
+    return !hideList.some(e2 => e.videoName.includes(e2))
+  })
+
+
+}
+
 // 云函数入口函数
 exports.main = async (event, context) => {
   let {search, sourceNo = 1} = event;
@@ -285,12 +294,12 @@ exports.main = async (event, context) => {
     let returnList = [];
     let nextSourceNo;
     if (sourceNo === 1) { // 来源
-      // 知也电影
-      returnList = await getVideoZy(search)
-      nextSourceNo = 2
-    } else if(sourceNo === 2) {
       // 天天在线电影大全
       returnList = await getVideo432115(search)
+      nextSourceNo = 2
+    } else if(sourceNo === 2) {
+      // 知也电影
+      returnList = await getVideoZy(search)
       nextSourceNo = 3
     } else if (sourceNo === 3) {
       // 一杯电影
@@ -305,7 +314,7 @@ exports.main = async (event, context) => {
     }
 
     return {
-      list: returnList,
+      list: filterVideo(returnList),
       nextSourceNo
     }
   }catch (e) {
