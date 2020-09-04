@@ -1,4 +1,4 @@
-const env = 'test-xyh-video'
+const env = 'test-xyh-zhitu'
 // 云函数入口文件
 const cloud = require('wx-server-sdk')
 

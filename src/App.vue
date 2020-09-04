@@ -3,7 +3,7 @@
     onLaunch: function() {
       console.log('App Launch')
       wx.cloud.init({
-        env: 'test-xyh-video',
+        env: 'test-xyh-zhitu',
         traceUser: true
       }) //调用前需先调用init
       console.log('wx.cloud.init()')

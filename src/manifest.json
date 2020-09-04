@@ -1,5 +1,5 @@
 {
-    "name" : "电影搜索",
+    "name" : "115电影搜索",
     "appid" : "",
     "description" : "电影搜索",
     "versionName" : "1.0.0",
@@ -50,7 +50,7 @@
     "quickapp" : {},
     /* 小程序特有相关 */
     "mp-weixin" : {
-        "appid" : "wxeab1f7a4d6bc5a66",
+        "appid" : "wxe935513823b55267",
         "cloudfunctionRoot": "./functions/",
         "setting" : {
             "urlCheck" : false

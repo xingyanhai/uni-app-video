@@ -1,4 +1,4 @@
-const env = 'test-xyh-video'
+const env = 'test-xyh-zhitu'
 // 云函数入口文件
 const cloud = require('wx-server-sdk')
 
@@ -321,7 +321,7 @@ async function getVideoZy (search) {
 }
 
 function filterVideo(list = []) {
-  let hideList = ['八佰']
+  let hideList = []
   return list.filter(e => {
     return !hideList.some(e2 => e.videoName.includes(e2))
   })
