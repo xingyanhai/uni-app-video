@@ -96,6 +96,7 @@
         watch: {
             config() {
                 this.getCurrentFreeCount()
+                this.createRewardedVideoAd()
             },
             currentFreeCount() {
                 this.setCurrentFreeCount()
@@ -245,6 +246,40 @@
                 uni.navigateTo({
                     url: `/pages/video-search/detail`
                 })
+            },
+            createRewardedVideoAd () {
+                // 在页面onLoad回调事件中创建激励视频广告实例
+                if (wx.createRewardedVideoAd && this.config && this.config.showAd) {
+                    this.videoAd = wx.createRewardedVideoAd({
+                        adUnitId: 'adunit-45bb55634ad8e65f'
+                    })
+                    this.videoAd.onLoad(() => {
+                    })
+                    this.videoAd.onError((err) => {
+                        console.log('videoAd.onError', err)
+                    })
+                    this.videoAd.onClose((res) => {
+                        // 用户点击了【关闭广告】按钮
+                        if (res && res.isEnded) {
+                            // 正常播放结束，可以下发游戏奖励
+                            // 重置搜索次数
+                            this.searchMap = {}
+                            this.currentFreeCount += this.addFreeCount
+                            uni.showModal({
+                                title: '提示',
+                                showCancel: false,
+                                content: `恭喜您,目前剩余${this.currentFreeCount}次搜索机会!`,
+                                success: function (res) {
+                                    if (res.confirm) {
+                                    } else if (res.cancel) {
+                                    }
+                                }
+                            })
+                        } else {
+                            // 播放中途退出，不下发游戏奖励
+                        }
+                    })
+                }
             }
         },
         // 加了这个页面才可以被分享
@@ -259,38 +294,7 @@
             }
         },
         async onLoad() {
-            // 在页面onLoad回调事件中创建激励视频广告实例
-            if (wx.createRewardedVideoAd) {
-                this.videoAd = wx.createRewardedVideoAd({
-                    adUnitId: 'adunit-45bb55634ad8e65f'
-                })
-                this.videoAd.onLoad(() => {
-                })
-                this.videoAd.onError((err) => {
-                    console.log('videoAd.onError', err)
-                })
-                this.videoAd.onClose((res) => {
-                    // 用户点击了【关闭广告】按钮
-                    if (res && res.isEnded) {
-                        // 正常播放结束，可以下发游戏奖励
-                        // 重置搜索次数
-                        this.searchMap = {}
-                        this.currentFreeCount += this.addFreeCount
-                        uni.showModal({
-                            title: '提示',
-                            showCancel: false,
-                            content: `恭喜您,目前剩余${this.currentFreeCount}次搜索机会!`,
-                            success: function (res) {
-                                if (res.confirm) {
-                                } else if (res.cancel) {
-                                }
-                            }
-                        })
-                    } else {
-                        // 播放中途退出，不下发游戏奖励
-                    }
-                })
-            }
+
         }
     }
 </script>

@@ -166,7 +166,7 @@
 			},
 			addVideoAd () {
 				// 在页面onLoad回调事件中创建激励视频广告实例
-				if (wx.createRewardedVideoAd) {
+				if (wx.createRewardedVideoAd && this.config && this.config.showAd) {
 					this.videoAd = wx.createRewardedVideoAd({
 						adUnitId: 'adunit-dc1741497f2da636'
 					})
