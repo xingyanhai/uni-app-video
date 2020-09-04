@@ -148,6 +148,49 @@ async function getVideo432115(search) {
   return returnList
 }
 
+// 驰一影视
+async function getVideoGo180(search) {
+  const url = 'https://wx.go180.cn/app/index.php?i=182&t=0&v=1.0.1&from=wxapp&c=entry&a=wxapp&do=Search&m=sg_movie'
+  let res = await fetch({
+    url,
+    params: {
+      sign: getUUID(),
+      key: search
+    },
+    method: 'get',
+    timeout: 60000,
+  });
+  let returnList = []
+  if(res && res.data && res.data.length) {
+    let dataList = res.data
+    dataList.forEach(data => {
+      if(data.vod_play_url && data.vod_play_url.length) {
+        let urlList = []
+        let list = `${data.vod_play_url || ''}`.split('$$$')
+        urlList = list.map(e => {
+          let item = e.split('$')
+          return {
+            name: item[0],
+            value: item[1]
+          }
+        }).filter(e => !!e.value)
+        returnList.push(
+            {
+              videoName: data.vod_name,
+              actor: data.vod_actor,
+              videoType: data.vod_class,
+              decs: data.vod_content,
+              director: data.vod_director,
+              coverImg: data.vod_pic,
+              urlList
+            }
+        )
+      }
+    })
+  }
+  return returnList
+}
+
 // 在线会员热门电影
 async function getVideoIyx3(search) {
   const url = 'https://www.iyx3.com/app/index.php?i=2&t=0&v=1.1&from=wxapp&c=entry&a=wxapp&do=Search&m=sg_movie'
@@ -290,25 +333,29 @@ function filterVideo(list = []) {
 exports.main = async (event, context) => {
   let {search, sourceNo = 1} = event;
   try {
-    const wxContext = cloud.getWXContext(search)
+    const wxContext = cloud.getWXContext()
     let returnList = [];
     let nextSourceNo;
-    if (sourceNo === 1) { // 来源
-      // 天天在线电影大全
-      returnList = await getVideo432115(search)
-      nextSourceNo = 2
-    } else if(sourceNo === 2) {
+    let apiList = [
+      // 驰一影视
+      getVideoGo180,
+      // 天天在线电影大全7
+      getVideo432115,
       // 知也电影
-      returnList = await getVideoZy(search)
-      nextSourceNo = 3
-    } else if (sourceNo === 3) {
+      getVideoZy,
       // 一杯电影
-      returnList = await getVideo100(search)
-      nextSourceNo = 4
-    } else if (sourceNo === 4) {
+      getVideo100,
       // 在线会员热门电影
-      returnList = await getVideoIyx3(search)
-      nextSourceNo = -1
+      getVideoIyx3
+    ]
+    let api = apiList[sourceNo - 1]
+    if(api) {
+      returnList = await api(search)
+      if (sourceNo === apiList.length) {
+        nextSourceNo = -1
+      } else {
+        nextSourceNo = sourceNo + 1
+      }
     } else {
       nextSourceNo = 1
     }
@@ -318,8 +365,7 @@ exports.main = async (event, context) => {
       nextSourceNo
     }
   }catch (e) {
-    console.log(e)
-    let nextSourceNo = sourceNo ++;
+    let nextSourceNo = ++sourceNo;
     if (nextSourceNo > 4) {
       nextSourceNo = -1
     }
