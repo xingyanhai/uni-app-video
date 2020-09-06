@@ -44,6 +44,14 @@
 		</view>
 		<ad v-if="config && config.showAd" ad-theme="black" unit-id="adunit-2c56a0998bfafd4e" ad-type="video"></ad>
 		<ad v-if="config && config.showAd" ad-theme="black" unit-id="adunit-acecd656d2e01167" ad-type="grid" grid-opacity="0.8" grid-count="5"></ad>
+		<uni-popup ref="sharePopup" type="bottom">
+			<view class="share-box">
+				<view class="text-tip">
+					分享给好友，即可观看完整视频。
+				</view>
+				<button class="share" open-type="share">一键分享</button>
+			</view>
+		</uni-popup>
 	</view>
 </template>
 
@@ -51,11 +59,13 @@
 	import * as api from '../../api/api'
 	import * as util from '../../common/util'
 	import * as common from '../../common/common.js'
+	import uniPopup from '../../components/uni-popup/uni-popup'
 	import {
 		mapState,
 		mapMutations
 	} from 'vuex'
 	export default {
+		components:{uniPopup},
 		data() {
 			return {
 				videoInfo: {},
@@ -67,6 +77,8 @@
 				currentUrl: '',
 				// 是否观看了激励广告
 				isLookVideoAd: false,
+				// 是否分享了
+				isShare: false,
 				videoAd: null,
 				timer: null
 			}
@@ -92,7 +104,7 @@
 				console.log(err)
 				this.videoContext.stop()
 				uni.showToast({
-					title: `抱歉，视频加载失败，尝试其它播放源！`,
+					title: `抱歉，视频加载失败，请切换手机网络或尝试其它播放源！`,
 					icon: 'none',
 				})
 			},
@@ -111,6 +123,11 @@
 								}
 							}
 						})
+					}, 3000)
+				} else if (!this.isShare && this.config && this.config.showShare) {
+					this.timer = setTimeout(() => {
+						this.videoContext.pause()
+						this.$refs.sharePopup.open()
 					}, 3000)
 				}
 			},
@@ -190,6 +207,13 @@
 		},
 		// 加了这个页面才可以被分享
 		onShareAppMessage () {
+			this.isShare = true
+			this.$refs.sharePopup.close()
+			return {
+				title: '全网电影搜索工具',
+				path: '/pages/video-search/video-search',
+				imageUrl: '/static/img/pre-video.png'
+			}
 		},
 		async onLoad() {
 			try {
@@ -255,4 +279,17 @@
 			word-break break-all
 .item-title
 	margin-bottom 5px
+.share-box
+	background-color #fff
+	display flex
+	flex-direction column
+	.text-tip
+		flex 1
+		padding 20px
+		text-align center
+		display block
+		color $uni-color-error
+	.share
+		margin 10px
+		color $uni-color-success
 </style>
