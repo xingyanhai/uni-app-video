@@ -42,8 +42,7 @@
 				{{videoInfo && videoInfo.decs}}
 			</view>
 		</view>
-		<ad v-if="config && config.showAd" ad-theme="black" unit-id="adunit-2c56a0998bfafd4e" ad-type="video"></ad>
-		<ad v-if="config && config.showAd" ad-theme="black" unit-id="adunit-acecd656d2e01167" ad-type="grid" grid-opacity="0.8" grid-count="5"></ad>
+		<ad v-if="config && config.showAd" ad-theme="black" unit-id="adunit-00961fd55c07dbee" ad-type="video"></ad>
 		<uni-popup ref="sharePopup" type="bottom">
 			<view class="share-box">
 				<view class="text-tip">
@@ -185,7 +184,7 @@
 				// 在页面onLoad回调事件中创建激励视频广告实例
 				if (wx.createRewardedVideoAd && this.config && this.config.showAd) {
 					this.videoAd = wx.createRewardedVideoAd({
-						adUnitId: 'adunit-dc1741497f2da636'
+						adUnitId: 'adunit-026934ef3981fcdd'
 					})
 					this.videoAd.onLoad(() => {
 					})

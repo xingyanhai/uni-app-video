@@ -55,7 +55,7 @@
                 </view>
             </view>
             <view class="bottom-ad-box" v-if="config && config.showAd">
-                <ad-custom ad-theme="black" unit-id="adunit-aae810d0225a4961"></ad-custom>
+                <ad-custom ad-theme="black" unit-id="adunit-6bb619e3fa5b2d94"></ad-custom>
             </view>
         </view>
     </view>
@@ -107,13 +107,13 @@
             getCurrentFreeCount() {
                 let count = 0
                 try {
-                    count = wx.getStorageSync('currentFreeCount') || this.firstFreeCount
+                    let num = wx.getStorageSync('currentFreeCount')
+                    count = num === '' ? this.firstFreeCount : num
                 } catch (e) {
                     count = this.firstFreeCount
                 }
                 count = Number(count)
                 this.currentFreeCount = count
-                console.log('this.currentFreeCount=', count)
             },
             setCurrentFreeCount() {
                 let count = this.currentFreeCount
@@ -140,7 +140,7 @@
                     isShowAd = true
                     uni.showModal({
                         title: '提示',
-                        content: `观看视频广告（约15秒），即可获取${this.addFreeCount}次搜索机会哦！(无搜索结果或重复搜索不计)`,
+                        content: `观看视频广告（约15秒），即可获取${this.addFreeCount}次搜索机会哦！(无搜索结果不计)`,
                         success: (res) => {
                             if (res.confirm) {
                                 common.showVideoAd(this.videoAd)
@@ -208,12 +208,12 @@
                             this.searchMap[this.search]++
                         } else {
                             this.searchMap[this.search] = 1
-                            let count = this.currentFreeCount - 1
-                            if (count < 0) {
-                                count = 0
-                            }
-                            this.currentFreeCount = count
                         }
+                        let count = this.currentFreeCount - 1
+                        if (count < 0) {
+                            count = 0
+                        }
+                        this.currentFreeCount = count
                     }
                 } else { // 可能是超时
                     this.sourceNo++
@@ -249,9 +249,9 @@
             },
             createRewardedVideoAd () {
                 // 在页面onLoad回调事件中创建激励视频广告实例
-                if (wx.createRewardedVideoAd && this.config && this.config.showAd) {
+                if (wx.createRewardedVideoAd && this.config && this.config.showAd && !this.videoAd) {
                     this.videoAd = wx.createRewardedVideoAd({
-                        adUnitId: 'adunit-45bb55634ad8e65f'
+                        adUnitId: 'adunit-026934ef3981fcdd'
                     })
                     this.videoAd.onLoad(() => {
                     })
@@ -291,10 +291,11 @@
         onShow() {
             if (this.config && Object.keys(this.config).length) {
                 this.getCurrentFreeCount()
+                this.createRewardedVideoAd()
             }
         },
         async onLoad() {
-
+            console.log('wx.getStorageSync', wx.getStorageSync('currentFreeCou111nt') === '')
         }
     }
 </script>

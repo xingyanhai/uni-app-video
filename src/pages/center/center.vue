@@ -85,6 +85,7 @@
 				<text class="list-text">{{value.shareText || '更多'}}</text>
 				<text class="navigat-arrow">&#xe65e;</text>
 			</view>
+			<ad v-if="config && config.showAd" ad-theme="black" unit-id="adunit-ba0482f09826a14d" ad-type="grid" grid-opacity="0.8" grid-count="5"></ad>
 		</view>
 	</view>
 </template>
@@ -182,7 +183,7 @@
 				// 在页面onLoad回调事件中创建插屏广告实例
 				if (wx.createInterstitialAd && this.config && this.config.showAd) {
 					interstitialAd = wx.createInterstitialAd({
-						adUnitId: 'adunit-eaacac765aaf2334'
+						adUnitId: 'adunit-c66450279ba3046d'
 					})
 					interstitialAd.onLoad(() => {})
 					interstitialAd.onError((err) => {})
