@@ -359,7 +359,10 @@ exports.main = async (event, context) => {
     } else {
       nextSourceNo = 1
     }
-
+    try {
+      await addSearch(search, returnList.length > 0)
+    } catch (e) {
+    }
     return {
       list: filterVideo(returnList),
       nextSourceNo
@@ -373,5 +376,35 @@ exports.main = async (event, context) => {
       list: [],
       nextSourceNo
     }
+  }
+}
+
+async function addSearch (search, haveData) {
+  const _ = db.command
+  let dbName = 'searchList'
+  let countRes = await db.collection(dbName).where({
+    search: search
+  }).count()
+  if(countRes.total === 0) { // 不存在则添加
+    await db.collection(dbName).add({
+      // data 字段表示需新增的 JSON 数据
+      data: {
+        search,
+        searchCount: 1,
+        modifyTime: new Date(),
+        haveData
+      }
+    })
+  } else {
+    await db.collection(dbName).where({
+      search: search
+    })
+    .update({
+      data: {
+        searchCount: _.inc(1),
+        modifyTime: new Date(),
+        haveData
+      },
+    })
   }
 }
