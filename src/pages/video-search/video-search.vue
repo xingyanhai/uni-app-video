@@ -47,17 +47,17 @@
             </view>
         </view>
 
-        <view class="main-bottom">
-            <view class="button-add-count">
-                <view v-if="config && config.showCurrentCount">当前剩余搜索次数:{{currentFreeCount}}</view>
-                <view class="btn" @click="addCountClick" v-if="config && config.showLookAd">
-                    点击观看视频广告，获取{{addFreeCount}}次搜索次数
-                </view>
-            </view>
-            <view class="bottom-ad-box" v-if="config && config.showAd">
-                <ad-custom ad-theme="black" unit-id="adunit-6bb619e3fa5b2d94"></ad-custom>
-            </view>
-        </view>
+<!--        <view class="main-bottom">-->
+<!--            <view class="button-add-count">-->
+<!--                <view v-if="config && config.showCurrentCount">当前剩余搜索次数:{{currentFreeCount}}</view>-->
+<!--                <view class="btn" @click="addCountClick" v-if="config && config.showLookAd">-->
+<!--                    点击观看视频广告，获取{{addFreeCount}}次搜索次数-->
+<!--                </view>-->
+<!--            </view>-->
+<!--            <view class="bottom-ad-box" v-if="config && config.showAd">-->
+<!--                <ad-custom ad-theme="black" unit-id="adunit-6bb619e3fa5b2d94"></ad-custom>-->
+<!--            </view>-->
+<!--        </view>-->
     </view>
 </template>
 
@@ -154,10 +154,10 @@
                 return isShowAd
             },
             async searchClick(isAgain) {
-                let isShowAd = this.tryToShowAd()
-                if (isShowAd) {
-                    return
-                }
+                // let isShowAd = this.tryToShowAd()
+                // if (isShowAd) {
+                //     return
+                // }
                 if (isAgain) { // 再次搜索
                 } else {
                     this.sourceNo = 1
