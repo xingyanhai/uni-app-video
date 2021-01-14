@@ -1,28 +1,45 @@
 <template>
 	<view class="new-page">
-		<view class="video-box" v-if="config && config.showVideo">
-			<video @waiting="videoWaiting"
-				   id="myVideo"
-				   class="video"
-				   :show-casting-button="true"
-				   @error="videoError"
-				   @play="onPlay"
-				   :title="movieName"
-				   :enable-play-gesture="true"
-				   picture-in-picture-mode="pop"
-				   autoplay
-				   controls
-				   :src="currentUrl">
-			</video>
+		<view v-if="config && config.showVideo">
+			<view class="video-box" >
+				<video @waiting="videoWaiting"
+					   id="myVideo"
+					   class="video"
+					   :show-casting-button="true"
+					   @error="videoError"
+					   @play="onPlay"
+					   :title="movieName"
+					   :enable-play-gesture="true"
+					   picture-in-picture-mode="pop"
+					   autoplay
+					   controls
+					   :src="currentUrl">
+				</video>
+			</view>
+			<view class="source-box" v-if="urlList && urlList.length">
+				<view>播放线路</view>
+				<view>
+					<radio-group class="radio-box" @change="changeRadio">
+						<label class="radio" v-for="(item, index) in urlList" :key="index">
+							<radio color="#5ba757" :value="item.value" :checked="item.value === currentUrl"/>{{item.name}}
+						</label>
+					</radio-group>
+				</view>
+			</view>
 		</view>
-		<view class="source-box" v-if="urlList && urlList.length && config && config.showVideo">
-			<view>播放线路</view>
-			<view>
-				<radio-group class="radio-box" @change="changeRadio">
-					<label class="radio" v-for="(item, index) in urlList" :key="index">
-						<radio color="#5ba757" :value="item.value" :checked="item.value === currentUrl"/>{{item.name}}
-					</label>
-				</radio-group>
+		<view v-else>
+			<view class="source-box" v-if="urlList && urlList.length">
+				<view>
+					<span>播放链接</span>
+					<span>点击复制播放链接可到浏览器打开链接观看</span>
+				</view>
+				<view>
+					<radio-group class="radio-box" @change="copy3">
+						<label class="radio" v-for="(item, index) in urlList" :key="index">
+							<radio color="#5ba757" :value="item.value" :checked="item.value === currentUrl"/>{{item.name}}
+						</label>
+					</radio-group>
+				</view>
 			</view>
 		</view>
 		<view class="down-box" v-if="downList.length || resource.length">
@@ -43,12 +60,24 @@
 			</view>
 		</view>
 		<ad v-if="config && config.showAd" ad-theme="black" unit-id="adunit-00961fd55c07dbee" ad-type="video"></ad>
-		<uni-popup ref="sharePopup" type="bottom">
+		<uni-popup ref="sharePopup" type="center">
 			<view class="share-box">
 				<view class="text-tip">
 					分享给好友，即可观看完整视频。
 				</view>
 				<button class="share" open-type="share">一键分享</button>
+			</view>
+		</uni-popup>
+
+		<uni-popup ref="beforeLookAdkPopup" type="bottom">
+			<view>
+				<view class="share-box">
+					<view>观看视频广告（约15秒），即可观看完整视频</view>
+				</view>
+				<view>
+					<button @click="showImg">如何去除广告？</button>
+					<button type="primary" @click="confirmLookAd">确定</button>
+				</view>
 			</view>
 		</uni-popup>
 	</view>
@@ -78,6 +107,8 @@
 				isLookVideoAd: false,
 				// 是否分享了
 				isShare: false,
+				// 无广告
+				isNoAd: false,
 				videoAd: null,
 				timer: null
 			}
@@ -108,27 +139,53 @@
 				})
 			},
 			onPlay () {
-				clearTimeout(this.timer)
-				if (!this.isLookVideoAd && this.config && this.config.showAd) {
-					this.timer = setTimeout(() => {
-						this.videoContext.pause()
-						uni.showModal({
-							title: '提示',
-							content: `观看视频广告（约15秒），即可观看完整视频`,
-							success: (res) => {
-								if (res.confirm) {
-									common.showVideoAd(this.videoAd)
-								} else if (res.cancel) {
-								}
-							}
-						})
-					}, 3000)
-				} else if (!this.isShare && this.config && this.config.showShare) {
-					this.timer = setTimeout(() => {
-						this.videoContext.pause()
-						this.$refs.sharePopup.open()
-					}, 3000)
+				if (this.isNoAd) { // 无广告
+					return
 				}
+				if (this.config && this.config.isVIP) { // vip 无广告
+					return
+				}
+				clearTimeout(this.timer)
+				if (this.config && this.config.showShare) {
+					if (!this.isShare) {
+						this.timer = setTimeout(() => {
+							this.videoContext.pause()
+							this.$refs.sharePopup.open()
+						}, 3000)
+					}
+				} else if(this.config && this.config.showAd) {
+					if (!this.isLookVideoAd) {
+						this.timer = setTimeout(() => {
+							this.videoContext.pause()
+							this.$refs.beforeLookAdkPopup.open()
+							// uni.showModal({
+							// 	title: '提示',
+							// 	content: `观看视频广告（约15秒），即可观看完整视频`,
+							// 	success: (res) => {
+							// 		if (res.confirm) {
+							// 			common.showVideoAd(this.videoAd)
+							// 		} else if (res.cancel) {
+							// 		}
+							// 	}
+							// })
+						}, 3000)
+					}
+				}
+			},
+			showImg () {
+				if (this.config && this.config.killAdImg) {
+					uni.previewImage({
+						urls: [this.config.killAdImg]
+					})
+				} else {
+					uni.showToast({
+						title: `抱歉，暂无法去除广告！`,
+						icon: 'none',
+					})
+				}
+			},
+			confirmLookAd () {
+				common.showVideoAd(this.videoAd)
 			},
 			async changeRadio (e) {
 				this.currentUrl = e.detail.value
@@ -180,6 +237,20 @@
 					}
 				})
 			},
+			copy3 (item) {
+				item = item.target.dataset.item
+				let text = item.value
+				wx.setClipboardData({
+					data: text,
+					success (res) {
+						wx.getClipboardData({
+							success (res) {
+								console.log(res.data) // data
+							}
+						})
+					}
+				})
+			},
 			addVideoAd () {
 				// 在页面onLoad回调事件中创建激励视频广告实例
 				if (wx.createRewardedVideoAd && this.config && this.config.showAd) {
@@ -214,7 +285,8 @@
 				imageUrl: '/static/img/pre-video.png'
 			}
 		},
-		async onLoad() {
+		async onLoad(e) {
+			this.isNoAd = !!e.isNoAd
 			try {
 				this.videoInfo = JSON.parse(wx.getStorageSync('videoInfo'))
 			}catch (e) {
