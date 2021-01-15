@@ -80,7 +80,8 @@
                 loading: false,
                 videoAd: null,
                 searchMap: {},
-                currentFreeCount: 0
+                currentFreeCount: 0,
+                query: {}
             }
         },
         components: {SearchBtn},
@@ -243,8 +244,9 @@
                     wx.setStorageSync('videoInfo', JSON.stringify(data))
                 } catch (e) {
                 }
+                let isNoAd = this.query && this.query.isNoAd
                 uni.navigateTo({
-                    url: `/pages/video-search/detail`
+                    url: `/pages/video-search/detail?isNoAd=${isNoAd}`
                 })
             },
             createRewardedVideoAd () {
@@ -294,8 +296,12 @@
                 this.createRewardedVideoAd()
             }
         },
-        async onLoad() {
-            console.log('wx.getStorageSync', wx.getStorageSync('currentFreeCou111nt') === '')
+        async onLoad(e) {
+            this.query = e
+            if (e && e.search) {
+                this.search = e.search
+                this.searchClick()
+            }
         }
     }
 </script>

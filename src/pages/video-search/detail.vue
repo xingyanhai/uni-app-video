@@ -286,7 +286,7 @@
 			}
 		},
 		async onLoad(e) {
-			this.isNoAd = !!e.isNoAd
+			this.isNoAd = e.isNoAd === '1'
 			try {
 				this.videoInfo = JSON.parse(wx.getStorageSync('videoInfo'))
 			}catch (e) {

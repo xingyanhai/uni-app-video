@@ -42,6 +42,13 @@ const store = new Vuex.Store({
 			})
 			state.config = resData.result.data[0] || {};
 		},
+		async getUserPower(state) {
+			let resData = await wx.cloud.callFunction({
+				name: 'getUserPower',
+				data: {}
+			})
+			state.userPower = resData.result
+		},
 		setStateData (state, obj = {}) {
 			Object.keys(obj).forEach(key => {
 				state[key] = obj[key]

@@ -55,27 +55,7 @@
 				</view>
                 <text class="navigat-arrow">&#xe65e;</text>
             </view>
-			<view class="center-list-item" @click="toImgOcr" v-if="config.showImageRecognition">
-				<text class="list-icon">&#xe609;</text>
-				<text class="list-text">图片识别</text>
-				<text class="navigat-arrow">&#xe65e;</text>
-			</view>
-			<view class="center-list-item" @click="goTest" v-if="config.showTest || userPower === -1">
-				<text class="list-icon">&#xe609;</text>
-				<text class="list-text">test</text>
-				<text class="navigat-arrow">&#xe65e;</text>
-			</view>
-			<view class="center-list-item" @click="toPage('/pages/oil-compute/oil-compute')" v-if="config.showOilConsumptionCompute">
-				<text class="list-icon">&#xe609;</text>
-				<text class="list-text">油耗计算</text>
-				<text class="navigat-arrow">&#xe65e;</text>
-			</view>
-			<view class="center-list-item" @click="toPage('/pages/video-search/video-search')" v-if="config.showSearchVideo">
-				<text class="list-icon">&#xe609;</text>
-				<text class="list-text">电影搜索</text>
-				<text class="navigat-arrow">&#xe65e;</text>
-			</view>
-			<view class="center-list-item" @click="toPage('/pages/page-to-QR/page-to-QR')" v-if="userPower === -1">
+			<view class="center-list-item" @click="toPage('/pages/admin/page-to-QR')" v-if="userPower === -1">
 				<text class="list-icon">&#xe609;</text>
 				<text class="list-text">获取二维码</text>
 				<text class="navigat-arrow">&#xe65e;</text>

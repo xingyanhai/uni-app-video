@@ -21,6 +21,12 @@
 			}
 		},
 		{
+			"path": "pages/admin/page-to-QR",
+			"style": {
+				"navigationBarTitleText": "获取页面二维码"
+			}
+		},
+		{
 			"path": "pages/about/about",
 			"style": {}
 		}
