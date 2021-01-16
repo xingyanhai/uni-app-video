@@ -11,7 +11,18 @@
 			<button class="get-user-button" @getuserinfo="getUserInfoClick" open-type="getUserInfo">
 				<image class="logo-img" mode="widthFix" :src="userInfo.avatarUrl ? userInfo.avatarUrl :avatarUrl"></image>
 				<view class="logo-title">
-					<view class="uer-name">{{userInfo.nickName ? userInfo.nickName : '点击授权用户信息'}}
+					<view class="uer-name">
+            <text class="text">
+              <template v-if="userInfo.nickName">
+                {{userInfo.nickName}}
+              </template>
+              <template v-else>
+                点击授权用户信息
+              </template>
+            </text>
+            <text :class="'level '+ 'level-'+userPower">
+              {{userPowerName}}
+            </text>
 					</view>
 				</view>
 			</button>
@@ -63,7 +74,7 @@
 			}
 		},
 		computed: {
-			...mapState(['userInfo','config', 'userPower', 'shareImgUrl']),
+			...mapState(['userInfo','config', 'userPower', 'shareImgUrl', 'userPowerName']),
 			shareList () {
 				let arr = []
 				if(this.config && this.config.shareMiniProgramList) {
@@ -74,10 +85,10 @@
 		},
 		methods: {
 			...mapMutations(['getUserInfo','setStateData']),
-            getUserInfoClick (e) {
-			  if(this.userInfo && this.userInfo.isLogin) {
-				  return
-			  }
+      getUserInfoClick (e) {
+          if(this.userInfo && this.userInfo.isLogin) {
+            return
+          }
               e.detail.userInfo.isLogin = true
               wx.cloud.init()                              //调用前需先调用init
               wx.cloud.callFunction({
@@ -163,8 +174,11 @@
 		onShareAppMessage: function (res) {
 		},
 		onLoad() {
-			this.showInterstitialAd()
-			this.getUserInfo()
+      this.getUserInfo()
+      setTimeout(() => {
+        this.showInterstitialAd()
+      }, 3000)
+      console.log(this.userPower)
 		}
 	}
 </script>
@@ -210,6 +224,20 @@
 			.uer-name {
 				font-size: 16px;
 				line-height: 40px;
+        align-items center
+        .level {
+          font-size 12px
+          line-height 16px
+          padding 0 2px
+          border-radius 2px
+          margin-left 2px
+          background-color #fff
+          color #000
+        }
+        .level-2,.level--1{
+          color: $uni-vip-color
+          background-color $uni-vip-bg
+        }
 			}
 			.phone-number {
 				font-size: 14px;

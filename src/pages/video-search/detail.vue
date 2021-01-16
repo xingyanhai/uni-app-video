@@ -16,6 +16,7 @@
                :src="currentUrl">
         </video>
       </view>
+      <text @click="showImg" class="video-bottom-text">{{isLookAd?'如何去除视频播放时的广告？':'本视频已去除广告'}}</text>
       <view class="source-box" v-if="urlList && urlList.length">
         <view class="line-title">
           <span class="title">播放线路</span>
@@ -30,7 +31,7 @@
         </view>
       </view>
     </view>
-    <view v-else>
+    <view v-else class="video-wrap">
       <view class="source-box" v-if="urlList && urlList.length">
         <view class="line-title">
           <span class="title">播放链接</span>
@@ -66,16 +67,23 @@
       </view>
     </view>
     <ad v-if="config && config.showAd" ad-theme="black" unit-id="adunit-00961fd55c07dbee" ad-type="video"></ad>
-    <uni-popup ref="sharePopup" type="center">
-      <view class="share-box">
-        <view class="text-tip">
-          分享给好友，即可观看完整视频。
+
+
+    <uni-popup ref="sharePopup" type="center" key="share">
+      <div class="popup-center-warp">
+        <div class="top">
+          <div class="title">提示</div>
+          <div class="content">
+            分享给好友，即可观看完整视频。
+          </div>
+        </div>
+        <view class="bottom-btn">
+          <button class="btn-item confirm" open-type="share">一键分享</button>
         </view>
-        <button class="share" open-type="share">一键分享</button>
-      </view>
+      </div>
     </uni-popup>
 
-    <uni-popup ref="beforeLookAdkPopup" type="center">
+    <uni-popup ref="beforeLookAdkPopup" type="center" key="ad">
       <div class="popup-center-warp">
         <div class="top">
           <div class="title">提示</div>
@@ -128,7 +136,13 @@ export default {
     }
   },
   computed: {
-    ...mapState(['userInfo', 'config', 'userPower', 'shareImgUrl'])
+    ...mapState(['userInfo', 'config', 'userPower', 'shareImgUrl']),
+    isLookAd () {
+      if(this.isShare || this.isNoAd || this.isLookVideoAd || [-1, 2].includes(this.userPower)) {
+        return false
+      }
+      return true
+    }
   },
   onReachBottom() {
     // console.log('滑动到页面底部')
@@ -148,42 +162,23 @@ export default {
       console.log(err)
       this.videoContext.stop()
       uni.showToast({
-        title: `抱歉，视频加载失败，请切换手机网络或尝试其它播放源！`,
+        title: `抱歉，视频加载失败，请切换手机网络重试！`,
         icon: 'none',
       })
     },
     onPlay() {
-      return
-      if (this.isNoAd) { // 无广告
-        return
-      }
-      if (this.config && this.config.isVIP) { // vip 无广告
-        return
-      }
-      clearTimeout(this.timer)
-      if (this.config && this.config.showShare) {
-        if (!this.isShare) {
+      if (this.isLookAd) { // 超管||vip||传入参数isNoAd  则无广告
+        clearTimeout(this.timer)
+        if (this.config && this.config.showShare) {
           this.timer = setTimeout(() => {
             this.videoContext.pause()
             this.$refs.sharePopup.open()
-          }, 3000)
-        }
-      } else if (this.config && this.config.showAd) {
-        if (!this.isLookVideoAd) {
+          }, 5000)
+        } else if (this.config && this.config.showAd) {
           this.timer = setTimeout(() => {
             this.videoContext.pause()
             this.$refs.beforeLookAdkPopup.open()
-            // uni.showModal({
-            // 	title: '提示',
-            // 	content: `观看视频广告（约15秒），即可观看完整视频`,
-            // 	success: (res) => {
-            // 		if (res.confirm) {
-            // 			common.showVideoAd(this.videoAd)
-            // 		} else if (res.cancel) {
-            // 		}
-            // 	}
-            // })
-          }, 3000)
+          }, 5000)
         }
       }
     },
@@ -199,8 +194,14 @@ export default {
         })
       }
     },
-    confirmLookAd() {
-      common.showVideoAd(this.videoAd)
+    async confirmLookAd() {
+      this.$refs.beforeLookAdkPopup.close()
+      let res = await common.showVideoAd(this.videoAd)
+
+      if (!res) { // 视频加载失败,也让播放
+        this.isLookVideoAd = true
+        this.videoContext.play()
+      }
     },
     async changeRadio(val) {
       this.currentUrl = val
@@ -348,6 +349,11 @@ export default {
     width 100%
     height calc(100vw * 0.75)
 
+.video-bottom-text
+  padding 3px 10px;
+  color $uni-color-success
+  font-size 12px;
+
 .source-box
   display block
   border-radius 10px
@@ -412,21 +418,6 @@ export default {
 .item-title
   margin-bottom 5px
 
-.share-box
-  background-color #fff
-  display flex
-  flex-direction column
-
-  .text-tip
-    flex 1
-    padding 20px
-    text-align center
-    display block
-    color $uni-color-error
-
-  .share
-    margin 10px
-    color $uni-color-success
 
 .popup-center-warp {
   display block
@@ -476,4 +467,5 @@ export default {
     }
   }
 }
+
 </style>

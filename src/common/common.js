@@ -1,16 +1,22 @@
 export async function showVideoAd(videoAd) {
-    if (videoAd) {
-        let res
-        try {
-            res = await videoAd.show()
-        } catch (err) {
-            console.log(err)
+    return new Promise((async (resolve, reject) => {
+        if (videoAd) {
+            let res
             try {
-                await videoAd.load()
-                await videoAd.show()
-            } catch (e) {
-                console.log('激励视频 广告显示失败1')
+                res = await videoAd.show()
+                resolve(true)
+            } catch (err) {
+                console.log(err)
+                try {
+                    await videoAd.load()
+                    await videoAd.show()
+                    resolve(true)
+                } catch (e) {
+                    console.log('激励视频 广告显示失败1')
+                    resolve(false)
+                }
             }
         }
-    }
+
+    }))
 }

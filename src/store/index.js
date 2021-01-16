@@ -15,7 +15,8 @@ const store = new Vuex.Store({
 		config: {},
 		tagList: [],
 		shareImgUrl: '',
-		userPower: 0, // -1 超管 1其他
+		userPower: 0, // -1：超管 1：普通用户 2：vip
+		userPowerName: '普通用户'
 	},
 	mutations: {
 		async getUserInfo(state) {
@@ -48,6 +49,13 @@ const store = new Vuex.Store({
 				data: {}
 			})
 			state.userPower = resData.result
+			let userMap = {
+				0: '',
+				'-1':'admin',
+				1: '普通用户',
+				2: 'VIP'
+			}
+			state.userPowerName = userMap[resData.result]
 		},
 		setStateData (state, obj = {}) {
 			Object.keys(obj).forEach(key => {

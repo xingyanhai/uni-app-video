@@ -340,7 +340,7 @@ exports.main = async (event, context) => {
       // 驰一影视
       getVideoGo180,
       // 天天在线电影大全7
-      getVideo432115,
+      // getVideo432115,
       // 知也电影
       getVideoZy,
       // 一杯电影

@@ -1,17 +1,10 @@
 <template>
     <view class="wrap">
         <view class="main-top">
-            <uni-notice-bar v-if="config && config.tips"
-                            showIcon
-                            background-color="transform"
-                            scrollable="true"
-                            single="true"
-                            :text="config.tips">
-            </uni-notice-bar>
             <view class="search-box">
                 <SearchBtn placeholder="请输入电影名称搜索" v-model="search" @searchClick="searchClick"></SearchBtn>
                 <view class="tips">
-                  tips: 电影搜索可能耗时较长，请耐心等待。
+                  tips: {{getTips}}
                 </view>
             </view>
             <view class="list" v-if="list && list.length">
@@ -71,7 +64,6 @@
 
 <script>
     import SearchBtn from '../components/search-btn'
-    import uniNoticeBar from '../../components/uni-notice-bar/uni-notice-bar.vue'
 
     import {
         mapState,
@@ -93,7 +85,7 @@
                 query: {}
             }
         },
-        components: {SearchBtn, uniNoticeBar},
+        components: {SearchBtn},
         computed: {
             ...mapState(['userInfo', 'config']),
             addFreeCount() {
@@ -101,7 +93,20 @@
             },
             firstFreeCount() {
                 return this.config.firstFreeCount || 1
-            }
+            },
+            getTips () {
+              let arr = ['电影搜索可能耗时较长，请耐心等待。']
+              if (this.config && this.config.tips) {
+                arr.push(this.config.tips)
+              }
+              return arr.map((e, i) => {
+                if (arr.length>1) {
+                  return `${i + 1}.${e}`
+                } else {
+                  return e
+                }
+              }).join(' ')
+            },
         },
         watch: {
             config() {
@@ -337,7 +342,9 @@
         display block
         width 100%
         padding 0 10px 10px
+        margin-top 10px
         .tips
+          display block
           font-size 12px
           margin-top 5px
           color $uni-color-subtitle
@@ -359,6 +366,7 @@
 
                 .image
                     width 100px
+                    min-height 148px
                     margin-right 10px
 
                 .des
