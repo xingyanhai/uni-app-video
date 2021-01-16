@@ -1,9 +1,18 @@
 <template>
     <view class="wrap">
         <view class="main-top">
-            <view class="app-tips" v-if="config && config.tips">{{config.tips}}</view>
+            <uni-notice-bar v-if="config && config.tips"
+                            showIcon
+                            background-color="transform"
+                            scrollable="true"
+                            single="true"
+                            :text="config.tips">
+            </uni-notice-bar>
             <view class="search-box">
                 <SearchBtn placeholder="请输入电影名称搜索" v-model="search" @searchClick="searchClick"></SearchBtn>
+                <view class="tips">
+                  tips: 电影搜索可能耗时较长，请耐心等待。
+                </view>
             </view>
             <view class="list" v-if="list && list.length">
                 <view class="item" v-for="(value, index) in list" :key="index" @tap="toDetail(value)">
@@ -30,16 +39,15 @@
                 </view>
             </view>
             <view v-else class="center">
-                暂无数据 <br>
-                输入电影名称进行搜索 <br>
-                电影搜索可能耗时较长，请耐心等待。<br>
+              <br>
+              <br>
+<!--              暂无数据-->
             </view>
 
             <view class="re-search" v-if="sourceNo > 1 && sourceNo !== -1">
                 <view class="tip-top-box">
                     没有搜到或搜到的都不是您想要的？<br>
                     可以切换到其它来源再搜一次 <br>
-
                 </view>
                 <button type="primary" @click="searchClick(true)">
                     切换至 来源{{sourceNo}} 再次搜索
@@ -47,22 +55,23 @@
             </view>
         </view>
 
-<!--        <view class="main-bottom">-->
+        <view class="main-bottom">
 <!--            <view class="button-add-count">-->
 <!--                <view v-if="config && config.showCurrentCount">当前剩余搜索次数:{{currentFreeCount}}</view>-->
 <!--                <view class="btn" @click="addCountClick" v-if="config && config.showLookAd">-->
 <!--                    点击观看视频广告，获取{{addFreeCount}}次搜索次数-->
 <!--                </view>-->
 <!--            </view>-->
-<!--            <view class="bottom-ad-box" v-if="config && config.showAd">-->
-<!--                <ad-custom ad-theme="black" unit-id="adunit-6bb619e3fa5b2d94"></ad-custom>-->
-<!--            </view>-->
-<!--        </view>-->
+            <view class="bottom-ad-box" v-if="config && config.showAd">
+                <ad-custom ad-theme="black" style="width: 100%!important;" unit-id="adunit-6bb619e3fa5b2d94"></ad-custom>
+            </view>
+        </view>
     </view>
 </template>
 
 <script>
     import SearchBtn from '../components/search-btn'
+    import uniNoticeBar from '../../components/uni-notice-bar/uni-notice-bar.vue'
 
     import {
         mapState,
@@ -84,7 +93,7 @@
                 query: {}
             }
         },
-        components: {SearchBtn},
+        components: {SearchBtn, uniNoticeBar},
         computed: {
             ...mapState(['userInfo', 'config']),
             addFreeCount() {
@@ -327,7 +336,11 @@
         box-sizing border-box
         display block
         width 100%
-        padding 10px
+        padding 0 10px 10px
+        .tips
+          font-size 12px
+          margin-top 5px
+          color $uni-color-subtitle
 
     .list
         display flex
@@ -414,8 +427,9 @@
     .bottom-ad-box
         margin-top 10px
         display flex
-        justify-content center
+        justify-content space-around
         align-items center
+        width 100%
 
     .app-tips
         color red
