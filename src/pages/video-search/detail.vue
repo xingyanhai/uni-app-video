@@ -31,7 +31,7 @@
         </view>
       </view>
     </view>
-    <view v-else class="video-wrap">
+    <view v-if="false" class="video-wrap">
       <view class="source-box" v-if="urlList && urlList.length">
         <view class="line-title">
           <span class="title">播放链接</span>
