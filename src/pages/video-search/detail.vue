@@ -31,7 +31,7 @@
         </view>
       </view>
     </view>
-   <!-- 隐藏掉-->
+   <!-- 隐藏掉 审核不通过-->
     <view v-if="false" class="video-wrap">
       <view class="source-box" v-if="urlList && urlList.length">
         <view class="line-title">
