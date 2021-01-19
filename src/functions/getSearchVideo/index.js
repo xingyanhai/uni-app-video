@@ -166,7 +166,7 @@ async function getVideoGo180(search) {
     dataList.forEach(data => {
       if(data.vod_play_url && data.vod_play_url.length) {
         let urlList = []
-        let list = `${data.vod_play_url || ''}`.split('$$$')
+        let list = `${data.vod_play_url || ''}`.split('#')
         urlList = list.map(e => {
           let item = e.split('$')
           return {
@@ -320,6 +320,78 @@ async function getVideoZy (search) {
   return returnList
 }
 
+// https://vip.bljiex.com/  这个可以搜到不可描述；不可加入搜索来源
+async function getVideoBljiex (search) {
+  const url = 'https://vip.bljiex.com/api.php'
+  let res = await fetch({
+    url,
+    params: {
+      wd: search
+    },
+    method: 'get',
+    timeout: 60000,
+  });
+  res = eval(`${res}`)
+  let returnList = []
+  if(res && res.success) {
+    let searchList = res.info
+    let fetchList = []
+    searchList.forEach(e => {
+      const url = 'https://vip.bljiex.com/api.php'
+      let f = fetch({
+        url,
+        params: {
+          flag: e.flag,
+          id: e.id,
+        },
+        method: 'get',
+        timeout: 60000,
+      });
+      fetchList.push(f)
+    })
+    let dataList = [];
+    let detailRes = await Promise.all(fetchList)
+    detailRes.forEach(e => {
+      e = eval(`${e}`)
+      if(e.success) {
+        dataList.push(e)
+      }
+    })
+    dataList.forEach(data => {
+      if(data.info && data.info.length) {
+        // 播放列表11
+        let urlList = []
+        data.info.forEach(item => {
+          if(item.video && item.video.length) {
+            item.video.forEach(videoItem => {
+              let arr = videoItem.split('$')
+              urlList.push(
+                  {
+                    name: arr[0],
+                    value: arr[1]
+                  }
+              )
+            })
+          }
+        })
+        urlList = urlList.filter(e => !!e.value)
+        returnList.push(
+            {
+              videoName: data.title,
+              actor: '无',
+              videoType: '无',
+              decs: '无',
+              director: '无',
+              coverImg: data.pic,
+              urlList
+            }
+        )
+      }
+    })
+  }
+  return returnList
+}
+
 function filterVideo(list = []) {
   let hideList = []
   return list.filter(e => {
@@ -344,9 +416,10 @@ exports.main = async (event, context) => {
       // 知也电影
       getVideoZy,
       // 一杯电影
-      getVideo100,
+      // getVideo100,
       // 在线会员热门电影
       getVideoIyx3
+      // getVideoBljiex
     ]
     let api = apiList[sourceNo - 1]
     if(api) {
@@ -368,11 +441,13 @@ exports.main = async (event, context) => {
       nextSourceNo
     }
   }catch (e) {
+    console.log(e)
     let nextSourceNo = ++sourceNo;
     if (nextSourceNo > 4) {
       nextSourceNo = -1
     }
     return {
+      error: e,
       list: [],
       nextSourceNo
     }
