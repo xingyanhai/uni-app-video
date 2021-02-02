@@ -409,12 +409,12 @@ exports.main = async (event, context) => {
     let returnList = [];
     let nextSourceNo;
     let apiList = [
+      // 知也电影
+      getVideoZy,
       // 驰一影视
       getVideoGo180,
       // 天天在线电影大全7
       // getVideo432115,
-      // 知也电影
-      getVideoZy,
       // 一杯电影
       // getVideo100,
       // 在线会员热门电影
