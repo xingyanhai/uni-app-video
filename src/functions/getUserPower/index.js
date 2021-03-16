@@ -9,10 +9,10 @@ const db = cloud.database({
   env
 })
 // 超管的openId
-const adminOpenIds = ['oFQK35N21KRlw2cDmNk7wo6CVctk1']
+const adminOpenIds = ['oFQK35N21KRlw2cDmNk7wo6CVctk']
 // vip的openId
 const vipOpenIds = [
-    'oFQK35N21KRlw2cDmNk7wo6CVctk1'
+    'oFQK35N21KRlw2cDmNk7wo6CVctk'
 ]
 
 // 云函数入口函数
