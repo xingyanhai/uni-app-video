@@ -392,6 +392,83 @@ async function getVideoBljiex (search) {
   return returnList
 }
 
+// 影音小屋
+async function getXiaoWu (search) {
+  const url = 'https://bh.bajiemeiwei.cn/api.php/videos/videos/searchKeywords'
+  let res = await fetch({
+    url,
+    data: {
+      keyword: search
+    },
+    method: 'post',
+    timeout: 60000,
+    headers: {
+      secret: '03ebA9350dhGfUxudHkJtinfQwbvq+dCfNdDJv6dgF2YEtq0HZpU713NeMoT'
+    }
+  });
+  let returnList = []
+  // res = eval(`(${res})`)
+  if(res && res.data && res.data.length) {
+    let searchList = res.data
+    let fetchList = []
+    searchList.forEach(e => {
+      const url = 'https://bh.bajiemeiwei.cn/api.php/videos/videos/getVideoDetail'
+      let f = fetch({
+        url,
+        data: {
+          vid: e.vod_name,
+          index: 0
+        },
+        method: 'post',
+        timeout: 60000,
+        headers: {
+          secret: '03ebA9350dhGfUxudHkJtinfQwbvq+dCfNdDJv6dgF2YEtq0HZpU713NeMoT'
+        }
+      });
+      fetchList.push(f)
+    })
+    let dataList = [];
+    let detailRes = await Promise.all(fetchList)
+    detailRes.forEach(e => {
+      // e =  eval(`(${e})`)
+      if(e && e.code === 200) {
+        dataList.push(e.data)
+      }
+    })
+    dataList.forEach(data => {
+      if(data.srcList && Object.keys(data.srcList).length) {
+        // 播放列表11
+        let urlList = []
+        Object.values(data.srcList).forEach(itemList => {
+          if(itemList && itemList.length) {
+            itemList.forEach(item => {
+              urlList.push(
+                  {
+                    name: item.name,
+                    value: item.url
+                  }
+              )
+            })
+          }
+        })
+        urlList = urlList.filter(e => !!e.value)
+        returnList.push(
+            {
+              videoName: data.title,
+              // actor: data.vod_actor,
+              // videoType: data.vod_class,
+              decs: data.remark,
+              // director: data.remark,
+              coverImg: data.vod_pic,
+              urlList,
+            }
+        )
+      }
+    })
+  }
+  return returnList
+}
+
 function filterVideo(list = []) {
   let hideList = []
   return list.filter(e => {
@@ -411,19 +488,25 @@ exports.main = async (event, context) => {
     let apiList = [
       // 知也电影
       getVideoZy,
+      // 影音小屋
+      getXiaoWu,
       // 驰一影视
-      getVideoGo180,
+      // getVideoGo180,
       // 天天在线电影大全7
       // getVideo432115,
       // 一杯电影
       // getVideo100,
       // 在线会员热门电影
-      getVideoIyx3
+      // getVideoIyx3
       // getVideoBljiex
     ]
     let api = apiList[sourceNo - 1]
     if(api) {
-      returnList = await api(search)
+      try {
+        returnList = await api(search)
+      } catch (e) {
+        returnList = []
+      }
       if (sourceNo === apiList.length) {
         nextSourceNo = -1
       } else {
